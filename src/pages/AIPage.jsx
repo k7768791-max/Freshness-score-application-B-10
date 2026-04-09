@@ -36,7 +36,7 @@ function TrialBar({ user, onUpgrade }) {
 
 function FreshnessPanel({ user, onNeedAuth, onTrialExhausted, onPredicted }) {
   const { showToast } = useToast();
-  const { updateUserLocally } = useAuth();
+  const { updateUserLocally, API } = useAuth();
   const [fields, setFields] = useState({
     category: "Vegetables", days: 7, storage: "fridge", condition: "good",
     packaging: "sealed", display: "fridge", damaged: "no",
@@ -51,7 +51,7 @@ function FreshnessPanel({ user, onNeedAuth, onTrialExhausted, onPredicted }) {
     if (!user) { onNeedAuth(); return; }
     setLoading(true);
     try {
-      const r = await fetch("/api/predict/freshness", {
+      const r = await fetch(`${API}/api/predict/freshness`, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -220,7 +220,7 @@ function DiscountPanel({ user, prefill, onNeedAuth, onTrialExhausted }) {
     if (!user) { onNeedAuth(); return; }
     setLoading(true);
     try {
-      const r = await fetch("/api/predict/discount", {
+      const r = await fetch(`${API}/api/predict/discount`, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

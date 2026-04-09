@@ -100,7 +100,7 @@ const s = {
 };
 
 export default function AdminDashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, logout , API} = useAuth();
   const { showToast } = useToast();
   const [tab, setTab] = useState("overview");
   const [stats, setStats] = useState(null);
@@ -116,8 +116,8 @@ export default function AdminDashboardPage() {
     setLoading(true);
     try {
       const [sR, uR] = await Promise.all([
-        fetch("/api/admin/stats", { credentials: "include" }),
-        fetch("/api/admin/users", { credentials: "include" }),
+        fetch(`${API}/api/admin/stats`, { credentials: "include" }),
+        fetch(`${API}/api/admin/users`, { credentials: "include" }),
       ]);
       if (!sR.ok || !uR.ok) throw new Error("Synchronization Failed");
       setStats(await sR.json());

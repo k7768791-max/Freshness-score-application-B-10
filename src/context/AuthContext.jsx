@@ -2,13 +2,15 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 
 const AuthContext = createContext(null);
 
-const API = "";
+// ✅ FIX: Use environment variable so production (Vercel) points to the deployed backend.
+//         In development, VITE_API_URL is not set so it falls back to "" (empty string),
+//         which lets Vite's dev proxy at vite.config.js handle /api/... calls.
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);      // {fname,lname,email,trial_used,is_pro}
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore session on mount
   useEffect(() => {
     fetch(`${API}/api/me`, { credentials: "include" })
       .then(r => r.json())
@@ -57,7 +59,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout, refreshUser, updateUserLocally }}>
+    // ✅ FIX: Export `API` so other components (AIPage, Dashboard, AdminDashboard)
+    //         can use the same base URL instead of hardcoding "/api/..."
+    <AuthContext.Provider value={{ user, loading, signup, login, logout, refreshUser, updateUserLocally, API }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import { useToast } from "../context/ToastContext";
 import "./DashboardPage.css";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, API } = useAuth();
   const { showToast } = useToast();
   const [stats, setStats] = useState(null);
   const [history, setHistory] = useState([]);
@@ -14,8 +14,8 @@ export default function DashboardPage() {
     async function fetchData() {
       try {
         const [sRes, hRes] = await Promise.all([
-          fetch("/api/dashboard/stats", { credentials: "include" }),
-          fetch("/api/dashboard/history", { credentials: "include" })
+          fetch(`${API}/api/dashboard/stats`, { credentials: "include" }),
+          fetch(`${API}/api/dashboard/history`, { credentials: "include" })
         ]);
 
         const sData = await sRes.json();
