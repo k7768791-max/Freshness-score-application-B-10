@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
-function Modal({ id, open, onClose, children }) {
+function Modal({ open, onClose, children }) {
   if (!open) return null;
   return (
     <div className="modal-overlay open" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -121,7 +121,7 @@ export function SignupModal({ open, onClose, onSwitch }) {
 }
 
 export function PaymentModal({ open, onClose, initialPlan, onSuccess }) {
-  const { user, updateUserLocally } = useAuth();
+  const { user, updateUserLocally, API } = useAuth();
   const { showToast } = useToast();
   const [plan, setPlan] = useState(initialPlan || "monthly");
   const [name, setName] = useState(user ? `${user.fname} ${user.lname || ""}`.trim() : "");
@@ -135,14 +135,15 @@ export function PaymentModal({ open, onClose, initialPlan, onSuccess }) {
     if (!name.trim() || !email.trim()) { showToast("Please fill your name and email.", "error"); return; }
     setLoading(true);
     try {
-      // Initiate order
-      const r = await fetch("/api/payment/initiate", {
+      // ✅ FIX: Use the full backend URL (API) instead of the relative "/api/..." path.
+      //         Relative paths fail in production because the frontend is on a different
+      //         domain (Vercel) from the backend (Render).
+      const r = await fetch(`${API}/api/payment/initiate`, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan })
       });
       const orderData = await r.json();
-
       if (!r.ok) throw new Error(orderData.error);
 
       // Open Razorpay
@@ -154,8 +155,6 @@ export function PaymentModal({ open, onClose, initialPlan, onSuccess }) {
         description: `${label} Subscription`,
         order_id: orderData.order_id,
         handler: async (response) => {
-          // Captured after successful transaction in popup
-          // response contains: razorpay_payment_id, razorpay_order_id, razorpay_signature
           await confirmPayment(response);
         },
         prefill: { name, email },
@@ -170,7 +169,7 @@ export function PaymentModal({ open, onClose, initialPlan, onSuccess }) {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-      
+
     } catch (e) {
       showToast(e.message || "Payment error. Please try again.", "error");
       setLoading(false);
@@ -179,13 +178,11 @@ export function PaymentModal({ open, onClose, initialPlan, onSuccess }) {
 
   async function confirmPayment(paymentDetails) {
     try {
-      const r = await fetch("/api/payment/success", {
+      // ✅ FIX: Same fix — use full API URL here too
+      const r = await fetch(`${API}/api/payment/success`, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...paymentDetails,
-          plan: plan
-        })
+        body: JSON.stringify({ ...paymentDetails, plan })
       });
       const d = await r.json();
       if (r.ok) {
