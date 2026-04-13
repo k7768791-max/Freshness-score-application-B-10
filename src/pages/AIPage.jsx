@@ -51,7 +51,7 @@ function FreshnessPanel({ user, onNeedAuth, onTrialExhausted, onPredicted }) {
     if (!user) { onNeedAuth(); return; }
     setLoading(true);
     try {
-      const r = await fetch(`https://freshness-score-application-b-10-backend-yv3d.onrender.com/api/predict/freshness`, {
+      const r = await fetch(`${API}/api/predict/freshness`, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -220,7 +220,7 @@ function DiscountPanel({ user, prefill, onNeedAuth, onTrialExhausted }) {
     if (!user) { onNeedAuth(); return; }
     setLoading(true);
     try {
-      const r = await fetch(`https://freshness-score-application-b-10-backend-yv3d.onrender.com/api/predict/discount`, {
+      const r = await fetch(`${API}/api/predict/discount`, {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
