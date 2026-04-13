@@ -36,6 +36,7 @@ function TrialBar({ user, onUpgrade }) {
 
 function FreshnessPanel({ user, onNeedAuth, onTrialExhausted, onPredicted }) {
   const { showToast } = useToast();
+  // ✅ API is correctly destructured here
   const { updateUserLocally, API } = useAuth();
   const [fields, setFields] = useState({
     category: "Vegetables", days: 7, storage: "fridge", condition: "good",
@@ -55,16 +56,16 @@ function FreshnessPanel({ user, onNeedAuth, onTrialExhausted, onPredicted }) {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          category:         fields.category,
+          category:           fields.category,
           days_since_arrival: Number(fields.days),
-          storage:          fields.storage,
-          condition:        fields.condition,
-          packaging:        fields.packaging,
-          display:          fields.display,
-          damaged:          fields.damaged,
-          weather:          fields.weather,
-          sensitivity:      fields.sensitivity,
-          demand:           fields.demand
+          storage:            fields.storage,
+          condition:          fields.condition,
+          packaging:          fields.packaging,
+          display:            fields.display,
+          damaged:            fields.damaged,
+          weather:            fields.weather,
+          sensitivity:        fields.sensitivity,
+          demand:             fields.demand
         })
       });
       const d = await r.json();
@@ -192,12 +193,20 @@ function FreshnessPanel({ user, onNeedAuth, onTrialExhausted, onPredicted }) {
 
 function DiscountPanel({ user, prefill, onNeedAuth, onTrialExhausted }) {
   const { showToast } = useToast();
-  const { updateUserLocally } = useAuth();
+  // ✅ FIX: Added API to the destructuring — it was missing before,
+  //         so ${API} in the fetch URL was undefined, causing every
+  //         discount prediction to fail with a network error / 401.
+  const { updateUserLocally, API } = useAuth();
   const [fields, setFields] = useState({
-    freshness: prefill?.freshness || 65,
-    expiry:    prefill?.expiry || 3,
-    price: 41.61, cost: 31.33, stock: 243, sales: 41,
-    category: "Vegetables", season: "summer", demand: "low",
+    freshness:   prefill?.freshness    || 65,
+    expiry:      prefill?.expiry       || 3,
+    price:       41.61,
+    cost:        31.33,
+    stock:       243,
+    sales:       41,
+    category:    "Vegetables",
+    season:      "summer",
+    demand:      "low",
     days_arrival: prefill?.days_arrival || 7
   });
   const [result, setResult] = useState(null);
@@ -206,9 +215,10 @@ function DiscountPanel({ user, prefill, onNeedAuth, onTrialExhausted }) {
   // Sync prefill when freshness panel completes
   React.useEffect(() => {
     if (prefill) {
-      setFields(f => ({ ...f,
-        freshness: prefill.freshness,
-        expiry: prefill.expiry,
+      setFields(f => ({
+        ...f,
+        freshness:    prefill.freshness,
+        expiry:       prefill.expiry,
         days_arrival: prefill.days_arrival
       }));
     }
@@ -224,14 +234,14 @@ function DiscountPanel({ user, prefill, onNeedAuth, onTrialExhausted }) {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          freshness:      Number(fields.freshness),
-          days_to_expiry: Number(fields.expiry),
-          original_price: Number(fields.price),
-          cost_price:     Number(fields.cost),
-          stock:          Number(fields.stock),
-          daily_sales:    Number(fields.sales),
-          demand:         fields.demand,
-          season:         fields.season,
+          freshness:          Number(fields.freshness),
+          days_to_expiry:     Number(fields.expiry),
+          original_price:     Number(fields.price),
+          cost_price:         Number(fields.cost),
+          stock:              Number(fields.stock),
+          daily_sales:        Number(fields.sales),
+          demand:             fields.demand,
+          season:             fields.season,
           days_since_arrival: Number(fields.days_arrival)
         })
       });
@@ -267,14 +277,18 @@ function DiscountPanel({ user, prefill, onNeedAuth, onTrialExhausted }) {
         <div className="form-group">
           <label>Season</label>
           <select className="select-control" value={fields.season} onChange={set("season")}>
-            <option value="summer">Summer</option><option value="winter">Winter</option>
-            <option value="rainy">Rainy</option><option value="normal">Normal</option>
+            <option value="summer">Summer</option>
+            <option value="winter">Winter</option>
+            <option value="rainy">Rainy</option>
+            <option value="normal">Normal</option>
           </select>
         </div>
         <div className="form-group">
           <label>Demand Level</label>
           <select className="select-control" value={fields.demand} onChange={set("demand")}>
-            <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
           </select>
         </div>
         <div className="form-group"><label>Days Since Arrival</label><input className="form-control" type="number" value={fields.days_arrival} onChange={set("days_arrival")} /></div>
