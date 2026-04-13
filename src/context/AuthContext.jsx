@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 // ✅ FIX: Use environment variable so production (Vercel) points to the deployed backend.
 //         In development, VITE_API_URL is not set so it falls back to "" (empty string),
 //         which lets Vite's dev proxy at vite.config.js handle /api/... calls.
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = "freshness-score-application-b-10-backend-yv3d.onrender.com" || "http://localhost:5000";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
